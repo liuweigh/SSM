@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:id="http://www.springframework.org/schema/c" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/aop
+        https://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!--配置spring 创建容器时要扫描的包-->
+    <context:component-scan base-package="com.shenruan">
+        <!--指定创建容器时哪些注解不扫描-->
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"></context:exclude-filter>
+    </context:component-scan>
+
+    <!--指定配置文件的位置-->
+    <context:property-placeholder location="classpath:jdbc.properties"></context:property-placeholder>
+
+    <!--配置SqlSessionFactoryBean-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+<!--配置数据源-->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+    <property name="driverClassName" value="${jdbc.driver}"></property>
+    <property name="url" value="${jdbc.url}"></property>
+    <property name="username" value="${jdbc.username}"></property>
+    <property name="password" value="${jdbc.password}"></property>
+    </bean>
+
+    <!--配置创建代理dao要读取的接口所在的包-->
+    <bean id="mapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.shenruan.dao"></property>
+    </bean>
+
+    <!--配置事务管理器-->
+
+<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <property name="dataSource" ref="dataSource"></property>
+</bean>
+
+    <!--配置事务的通知-->
+<tx:advice id="txAdvice" transaction-manager="transactionManager">
+       <!--配置事务的属性-->
+    <tx:attributes>
+        <tx:method name="*" propagation="REQUIRED" read-only="false"/>
+        <tx:method name="find*" propagation="SUPPORTS" read-only="true"/>
+    </tx:attributes>
+
+
+</tx:advice>
+    <!--配置aop 建立事务通知和切入点表达式的关系-->
+<aop:config>
+    <!--配置切入点表达式-->
+    <aop:pointcut id="pt1" expression="execution(* com.shenruan.service.impl.*.*(..))"></aop:pointcut>
+    <!--建立关系-->
+    <aop:advisor advice-ref="txAdvice" pointcut-ref="pt1"></aop:advisor>
+</aop:config>
+
+
+</beans>

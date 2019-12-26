@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!--指定配置文件的位置-->
+    <properties resource="jdbc.properties"></properties>
+    <!--配置环境-->
+    <environments default="mysql">
+        <!--配置mysql 的环境-->
+        <environment id="mysql">
+            <!--配置事物的类型-->
+            <transactionManager type="JDBC"></transactionManager>
+            <!--配置使用的连接池POOLED-->
+            <dataSource type="POOLED">
+                <property name="driver" value="${jdbc.driver}"></property>
+                <property name="url" value="${jdbc.url}"></property>
+                <property name="username" value="${jdbc.username}"></property>
+                <property name="password" value="${jdbc.password}"></property>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <!--指定映射文件或者注解类的位置-->
+    <mappers>
+        <package name="com.shenruan.dao"></package>
+    </mappers>
+</configuration>
